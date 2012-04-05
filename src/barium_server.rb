@@ -1,7 +1,9 @@
-require "sinatra/base"
+require "sinatra"
 
-class BariumServer < Sinatra::Base
-  get "/my_tracking_script" do
-    "hai"
-  end
+get "/" do
+  "hai"
+end
+
+get "/my_tracking_script" do
+  "hai"
 end

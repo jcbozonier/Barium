@@ -2,4 +2,4 @@ require 'sinatra'
 require './src/barium_server'
 
 
-run BariumServer
+run Sinatra::App
