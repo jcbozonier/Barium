@@ -20,7 +20,7 @@ get "/" do
     end
 
     current_time = Time.now
-    log_folder_path = "../logs"
+    log_folder_path = "./logs"
     log_file_path = "#{log_folder_path}/log_#{current_time.hour}.txt"
 
     if not File.directory?(log_folder_path)
