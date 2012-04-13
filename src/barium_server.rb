@@ -36,7 +36,7 @@ get "/" do
 
     puts "Ending tracking"
   rescue Exception => error
-    return error
+    return "#{error.message}<br/> #{error.backtrace}"
   end
   "hai"
 end
