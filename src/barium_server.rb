@@ -38,5 +38,8 @@ get "/" do
   rescue Exception => error
     return "Current directory: #{Dir.getwd}<br/>#{error.message}<br/> #{error.backtrace}"
   end
+
+  response['Cache-Control'] = "no-cache"
+  response['Expires'] = "-1"
   "hai"
 end
