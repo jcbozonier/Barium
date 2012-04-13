@@ -2,7 +2,7 @@ require "sinatra"
 require "sinatra/cookies"
 require "uuid"
 
-set :public_folder, "../logs"
+set :public_folder, "./logs"
 
 get "/" do
   begin
