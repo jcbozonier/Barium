@@ -11,7 +11,7 @@ get "/" do
         puts "No cookie! Setting..."
         response.set_cookie("barium_trace",
                    :value => UUID.generate(),
-                   :domain => '127.0.0.1',
+                   :domain => 'LogBalancer-231309745.us-east-1.elb.amazonaws.com',
                    :path => "/",
                    :expires => Time.new(2020,1,1))
         puts "Set the cookie!"
