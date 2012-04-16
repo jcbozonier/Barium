@@ -12,6 +12,7 @@ get "/" do
         response.set_cookie("barium_trace",
                    :value => UUID.generate(),
                    :domain => 'LogBalancer-231309745.us-east-1.elb.amazonaws.com',
+                   #:domain => '127.0.0.1',
                    :path => "/",
                    :expires => Time.new(2020,1,1))
         puts "Set the cookie!"
@@ -28,9 +29,11 @@ get "/" do
     end
 
     trace_id = cookies[:barium_trace]
+    referer = request.referer
+    user_agent = request.user_agent
 
     (file = File.new(log_file_path,'a')).flock(File::LOCK_EX)
-    file.puts("#{current_time}\t#{trace_id}")
+    file.puts("#{current_time}\t#{trace_id}\t#{referer}\t#{user_agent}")
     file.flock(File::LOCK_UN)
     file.close
 
