@@ -1,41 +1,42 @@
 require "sinatra"
 require "sinatra/cookies"
 require "uuid"
+require "json"
 
 set :public_folder, "./logs"
+SERVER_ROOT = "127.0.0.1:4567"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+
+get "/test_client" do
+  @server_root = SERVER_ROOT
+  erb :test_client
+end
+
+get "/new_event" do
+  ensure_cookie()
+  event = JSON.parse(params[:event])
+  custom_event = CustomEvent.new
+  custom_event.current_time = Time.now
+  custom_event.category = event[0]
+  custom_event.action = event[1]
+  custom_event.label = event[2]
+
+  log custom_event
+end
 
 get "/" do
+  @server_root = SERVER_ROOT
   begin
     puts "Starting to track"
-    if cookies[:barium_trace] == nil
-        puts "No cookie! Setting..."
-        response.set_cookie("barium_trace",
-                   :value => UUID.generate(),
-                   :domain => 'LogBalancer-231309745.us-east-1.elb.amazonaws.com',
-                   #:domain => '127.0.0.1',
-                   :path => "/",
-                   :expires => Time.new(2020,1,1))
-        puts "Set the cookie!"
-    else
-      puts "Found cookie! Here: #{cookies[:barium_trace]}"
-    end
+    ensure_cookie()
 
-    current_time = Time.now
-    log_folder_path = "./logs"
-    log_file_path = "#{log_folder_path}/log_#{current_time.hour}.txt"
+    page_viewed_event = PageViewedEvent.new
+    page_viewed_event.current_time = Time.now
+    page_viewed_event.persistent_id = cookies[:barium_trace]
+    page_viewed_event.referer = request.referer
+    page_viewed_event.user_agent = request.user_agent
 
-    if not File.directory?(log_folder_path)
-      Dir.mkdir log_folder_path
-    end
-
-    trace_id = cookies[:barium_trace]
-    referer = request.referer
-    user_agent = request.user_agent
-
-    (file = File.new(log_file_path,'a')).flock(File::LOCK_EX)
-    file.puts("#{current_time}\t#{trace_id}\t#{referer}\t#{user_agent}")
-    file.flock(File::LOCK_UN)
-    file.close
+    log page_viewed_event
 
     puts "Ending tracking"
   rescue Exception => error
@@ -44,5 +45,51 @@ get "/" do
 
   response['Cache-Control'] = "no-cache"
   response['Expires'] = "-1"
-  "function barium_loaded(){};"
+
+  erb :barium_js
+end
+
+def log event
+  current_time = event.current_time
+  log_folder_path = "./logs"
+  log_file_path = "#{log_folder_path}/log_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
+
+  if not File.directory?(log_folder_path)
+    Dir.mkdir log_folder_path
+  end
+
+  (file = File.new(log_file_path,'a')).flock(File::LOCK_EX)
+
+  event.write_to file
+
+  file.flock(File::LOCK_UN)
+  file.close
+end
+
+def ensure_cookie
+  if cookies[:barium_trace] == nil
+    puts "No cookie! Setting..."
+    response.set_cookie("barium_trace",
+                        :value => UUID.generate(),
+                        :domain => @server_root,
+                        :path => "/",
+                        :expires => Time.new(2020,1,1))
+    puts "Set the cookie!"
+  else
+    puts "Found cookie! Here: #{cookies[:barium_trace]}"
+  end
+end
+
+class CustomEvent
+  attr_accessor :category, :action, :label, :current_time, :persistent_id
+  def write_to thing
+    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}"
+  end
+end
+
+class PageViewedEvent
+  attr_accessor :current_time, :persistent_id, :referer, :user_agent
+  def write_to thing
+    thing.puts "page_view\t#{@current_time}\t#{@persistent_id}\t#{@referer}\t#{@user_agent}"
+  end
 end
