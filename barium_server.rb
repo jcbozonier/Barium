@@ -4,6 +4,7 @@ require "uuid"
 require "json"
 
 set :public_folder, "./logs"
+set :views, "./views"
 #SERVER_ROOT = "127.0.0.1:4567"
 SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
