@@ -4,8 +4,8 @@ require "uuid"
 require "json"
 
 set :public_folder, "./logs"
-SERVER_ROOT = "127.0.0.1:4567"
-#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+#SERVER_ROOT = "127.0.0.1:4567"
+SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 get "/test_client" do
   @server_root = SERVER_ROOT
