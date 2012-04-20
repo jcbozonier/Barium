@@ -9,9 +9,8 @@ set :views, "./views"
 SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 get "/test_client" do
-  #@server_root = SERVER_ROOT
-  #erb :test_client
-  "HAI"
+  @server_root = SERVER_ROOT
+  erb :test_client
 end
 
 get "/new_event" do
