@@ -1,5 +1,5 @@
 require 'sinatra'
-require './src/barium_server'
+require './barium_server'
 
 
 run Sinatra::Application
