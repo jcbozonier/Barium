@@ -1,0 +1,25 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <title></title>
+</head>
+<body>
+<script type="text/javascript">
+    window._ba = window._ba || [];
+    window._ba.push(["queued test category!", "queued test action!!", "queued test label!!!"]);
+
+    (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = "http://<%= @server_root %>";
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+    })();
+
+
+    setTimeout(function(){window._ba.push(["test category!", "test action!!", "test label!!!"]);}, 2000);
+</script>
+</body>
+</html>

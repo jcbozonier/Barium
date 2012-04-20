@@ -1,0 +1,29 @@
+var BariumTracker = function(){
+    var web_server_root = "http://<%= @server_root %>";
+    var self = {
+        createScriptElement: function(){
+            return document.createElement('script');
+        },
+        push: function(event){
+            var json_event = JSON.stringify(event);
+            var encoded_json_event = encodeURIComponent(json_event);
+            self.send_event(encoded_json_event);
+        },
+        send_event: function(event_data)
+        {
+            var script_element = self.createScriptElement();
+            script_element.setAttribute("type","text/javascript");
+            script_element.setAttribute("src", web_server_root + "/new_event?event=" + event_data);
+            document.getElementsByTagName("head")[0].appendChild(script_element);
+        }
+    };
+    return self;
+};
+
+if(!window._ba){
+    window._ba = new BariumTracker();
+} else{
+    var queued_events = window._ba;
+    window._ba = new BariumTracker();
+    queued_events.reverse().map(function(event){window._ba.push(event);});
+}
