@@ -5,8 +5,8 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:4567"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:4567"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 get "/test_client" do
   @server_root = SERVER_ROOT
@@ -23,6 +23,13 @@ get "/new_event" do
   custom_event.label = event[2]
 
   log custom_event
+end
+
+get "/log_directory" do
+  @log_files = Dir.glob("./logs/*").map do |file_path|
+    File.basename(file_path)
+  end
+  erb :log_directory
 end
 
 get "/" do
