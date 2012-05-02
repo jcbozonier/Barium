@@ -5,8 +5,8 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-SERVER_ROOT = "127.0.0.1:9292"
-#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+#SERVER_ROOT = "127.0.0.1:9292"
+SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 get "/test_client" do
   @server_root = SERVER_ROOT
