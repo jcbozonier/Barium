@@ -53,7 +53,7 @@ get "/" do
     return "// Current directory: #{Dir.getwd}<br/>#{error.message}<br/> #{error.backtrace}"
   end
 
-  response['Cache-Control'] = "no-cache"
+  response['Cache-Control'] = "no-store, no-cache, must-revalidate"
   response['Expires'] = "-1"
 
   erb :barium_js
