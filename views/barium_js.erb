@@ -25,5 +25,8 @@ if(!window._ba){
 } else{
     var queued_events = window._ba;
     window._ba = new BariumTracker();
-    queued_events.reverse().map(function(event){window._ba.push(event);});
+    for(var event_index in queued_events){
+        var event = queued_events[event_index];
+        window._ba.push(event);
+    }
 }

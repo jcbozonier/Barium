@@ -5,8 +5,8 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 get "/test_client" do
   @server_root = SERVER_ROOT
@@ -83,7 +83,7 @@ def ensure_cookie
                         :value => UUID.generate(),
                         :domain => @server_root,
                         :path => "/",
-                        :expires => Time.new(2020,1,1))
+                        :expires => Time.new(Time.now.year + 20,1,1))
     puts "Set the cookie!"
   else
     puts "Found cookie! Here: #{cookies[:barium_trace]}"
