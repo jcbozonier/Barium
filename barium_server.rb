@@ -5,8 +5,8 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:4567"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 get "/test_client" do
   @server_root = SERVER_ROOT
@@ -14,10 +14,12 @@ get "/test_client" do
 end
 
 get "/new_event" do
+  puts "Tracking custom event"
   ensure_cookie()
   event = JSON.parse(params[:event])
   custom_event = CustomEvent.new
   custom_event.current_time = Time.now
+  custom_event.persistent_id = cookies[:barium_trace]
   custom_event.category = event[0]
   custom_event.action = event[1]
   custom_event.label = event[2]
