@@ -27,6 +27,10 @@ get "/new_event" do
   log custom_event
 end
 
+get "/hawtsauce" do
+  "pork & beans!"
+end
+
 get "/log_directory" do
   @log_files = Dir.glob("./logs/*").map do |file_path|
     File.basename(file_path)
