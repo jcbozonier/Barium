@@ -5,8 +5,25 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+
+error do
+  puts 'your mom down'
+ error_event = ErrorEvent.new
+ error_event.current_time = Time.now
+ error_event.persistent_id = cookies[:barium_trace]
+ 
+ error_event.error = request.env['sinatra.error'].message
+ 
+ log error_event, current_error_log_file_path
+ 
+ 'SOMETHING ASPLODED!'
+end
+
+get "/asplode" do
+  raise Error, "I ASPLODED!"
+end
 
 get "/test_client" do
   @server_root = SERVER_ROOT
@@ -24,7 +41,7 @@ get "/new_event" do
   custom_event.action = event[1]
   custom_event.label = event[2]
 
-  log custom_event
+  log custom_event, current_log_file_path
 end
 
 get "/clean" do
@@ -54,7 +71,7 @@ get "/" do
     page_viewed_event.referer = request.referer
     page_viewed_event.user_agent = request.user_agent
 
-    log page_viewed_event
+    log page_viewed_event, current_log_file_path
 
     puts "Ending tracking"
   rescue Exception => error
@@ -76,12 +93,16 @@ def current_log_file_path
   "#{log_folder_path}/log_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
 end
 
-def log event
+def current_error_log_file_path
+  current_time = Time.now
+  "#{log_folder_path}/errors_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
+end
+
+def log event, path
   if not File.directory?(log_folder_path)
     Dir.mkdir log_folder_path
   end
-
-  (file = File.new(current_log_file_path,'a')).flock(File::LOCK_EX)
+  (file = File.new(path,'a')).flock(File::LOCK_EX)
 
   event.write_to file
 
@@ -100,6 +121,13 @@ def ensure_cookie
     puts "Set the cookie!"
   else
     puts "Found cookie! Here: #{cookies[:barium_trace]}"
+  end
+end
+
+class ErrorEvent
+  attr_accessor :current_time,:persistent_id, :error
+  def write_to thing
+    thing.puts "error\t#{current_time}\t#{persistent_id}\t\t#{error}"
   end
 end
 
