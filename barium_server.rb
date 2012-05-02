@@ -27,12 +27,16 @@ get "/new_event" do
   log custom_event
 end
 
-get "/hawtsauce" do
-  "pork & beans!"
+get "/clean" do
+  puts "Current File: " + current_log_file_path
+  Dir.glob("#{log_folder_path}/*") do |file_path|
+    File.delete(file_path) unless file_path == current_log_file_path 
+  end
+  "Cleaned all log files prior to #{current_log_file_path}"
 end
 
 get "/log_directory" do
-  @log_files = Dir.glob("./logs/*").map do |file_path|
+  @log_files = Dir.glob("#{log_folder_path}/*").map do |file_path|
     File.basename(file_path)
   end
   erb :log_directory
@@ -63,16 +67,21 @@ get "/" do
   erb :barium_js
 end
 
-def log event
-  current_time = event.current_time
+def log_folder_path
   log_folder_path = "./logs"
-  log_file_path = "#{log_folder_path}/log_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
+end
 
+def current_log_file_path
+  current_time = Time.now
+  "#{log_folder_path}/log_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
+end
+
+def log event
   if not File.directory?(log_folder_path)
     Dir.mkdir log_folder_path
   end
 
-  (file = File.new(log_file_path,'a')).flock(File::LOCK_EX)
+  (file = File.new(current_log_file_path,'a')).flock(File::LOCK_EX)
 
   event.write_to file
 
