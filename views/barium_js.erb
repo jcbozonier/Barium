@@ -1,32 +1,30 @@
-var BariumTracker = function(){
-    var web_server_root = "http://<%= @server_root %>";
-    var self = {
-        createScriptElement: function(){
-            return document.createElement('script');
-        },
-        push: function(event){
-            var json_event = JSON.stringify(event);
-            var encoded_json_event = encodeURIComponent(json_event);
-            self.send_event(encoded_json_event);
-        },
-        send_event: function(event_data)
-        {
-            var script_element = self.createScriptElement();
-            script_element.setAttribute("type","text/javascript");
-            script_element.setAttribute("src", web_server_root + "/new_event?event=" + event_data);
-            document.getElementsByTagName("head")[0].appendChild(script_element);
-        }
-    };
-    return self;
-};
-
-if(!window._ba){
-    window._ba = new BariumTracker();
-} else{
-    var queued_events = window._ba;
-    window._ba = new BariumTracker();
-    for(var event_index in queued_events){
-        var event = queued_events[event_index];
-        window._ba.push(event);
-    }
-}
+(function(){
+    var BariumTracker = function(){
+        var web_server_root = "http://<%= @server_root %>";
+        var self = {
+            push: function(event){
+                var json_event = JSON.stringify(event);
+                var encoded_json_event = encodeURIComponent(json_event);
+                self.send_event(encoded_json_event);
+            },
+            send_event: function(event_data) {
+                var img = new Image();
+                img.src = web_server_root + "/new_event?event=" + event_data;
+            }
+        };
+        
+        return self;
+    };
+    
+    if (!window._ba){
+        window._ba = new BariumTracker();
+    } else {
+        var queued_events = window._ba,
+            event;
+        window._ba = new BariumTracker();
+        for (var idx = 0, l = queued_events.length; idx < l; idx += 1){
+            event = queued_events[idx];
+            window._ba.push(event);
+        }
+    }
+})();
