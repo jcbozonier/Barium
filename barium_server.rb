@@ -5,8 +5,8 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 error do
   puts 'your mom down'
@@ -38,8 +38,10 @@ get "/new_event" do
   custom_event.current_time = Time.now
   custom_event.persistent_id = cookies[:barium_trace]
   custom_event.category = event[0]
-  custom_event.action = event[1]
-  custom_event.label = event[2]
+  
+  custom_event.action = event[1] unless event.length < 2
+  custom_event.label = event[2] unless event.length < 3
+  custom_event.value = event[3] unless event.length < 4
 
   log custom_event, current_log_file_path
 end
@@ -132,9 +134,9 @@ class ErrorEvent
 end
 
 class CustomEvent
-  attr_accessor :category, :action, :label, :current_time, :persistent_id
+  attr_accessor :category, :action, :label, :value, :current_time, :persistent_id
   def write_to thing
-    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}"
+    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}"
   end
 end
 
