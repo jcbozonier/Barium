@@ -13,6 +13,8 @@ error do
  error_event = ErrorEvent.new
  error_event.current_time = Time.now
  error_event.persistent_id = cookies[:barium_trace]
+ error_event.user_agent = request.user_agent
+ error_event.referer = request.referer
  
  sinatra_error = request.env['sinatra.error']
  error_event.error = sinatra_error.message + "\n" + sinatra_error.backtrace.join("\n")
@@ -128,9 +130,9 @@ def ensure_cookie
 end
 
 class ErrorEvent
-  attr_accessor :current_time,:persistent_id, :error
+  attr_accessor :current_time,:persistent_id, :error, :user_agent, :referer
   def write_to thing
-    thing.puts "error\t#{current_time}\t#{persistent_id}\t\t#{error}"
+    thing.puts "error\t#{current_time}\t#{persistent_id}\t#{user_agent}\t#{referer}\t#{error}"
   end
 end
 
