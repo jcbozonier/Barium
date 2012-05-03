@@ -14,7 +14,8 @@ error do
  error_event.current_time = Time.now
  error_event.persistent_id = cookies[:barium_trace]
  
- error_event.error = request.env['sinatra.error'].message
+ sinatra_error = request.env['sinatra.error']
+ error_event.error = sinatra_error.message + "\n" + sinatra_error.backtrace.join("\n")
  
  log error_event, current_error_log_file_path
  
