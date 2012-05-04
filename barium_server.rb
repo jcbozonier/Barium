@@ -5,8 +5,8 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 error do
   puts 'your mom down'
@@ -52,9 +52,22 @@ end
 get "/clean" do
   puts "Current File: " + current_log_file_path
   Dir.glob("#{log_folder_path}/*") do |file_path|
-    File.delete(file_path) unless file_path == current_log_file_path 
+    File.delete(file_path) unless file_path == current_log_file_path or file_path == current_error_log_file_path
   end
   "Cleaned all log files prior to #{current_log_file_path}"
+end
+
+get "/files_to_archive" do
+  log_files = Dir.glob("#{log_folder_path}/*")
+                .reject{|file_path| file_path == current_error_log_file_path}
+                .reject{|file_path| file_path == current_log_file_path}
+                .map { |file_path| { 
+                    "uri" => File.join("http://", SERVER_ROOT, File.basename(file_path)), 
+                    "size" => File.size(file_path) 
+                  } 
+                }
+
+  log_files.to_json
 end
 
 get "/log_directory" do
