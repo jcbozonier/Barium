@@ -47,7 +47,7 @@ end
 def files_match local_file_size, server_file_size
 	file_size_ratio = server_file_size.to_f / local_file_size.to_f
 	puts "Ratio is #{file_size_ratio}"
-	return file_size_ratio >= 0.98917 # Different file systems, different file sizes
+	return file_size_ratio >= 0.9891 # Different file systems, different file sizes
 end
 
 archive_files
