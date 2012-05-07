@@ -77,6 +77,10 @@ get "/log_directory" do
   erb :log_directory
 end
 
+get "/my_pid" do
+  "Your cookie is #{cookies[:barium_trace]}"
+end
+
 get "/" do
   @server_root = SERVER_ROOT
   begin
