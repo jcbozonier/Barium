@@ -5,8 +5,8 @@ require "json"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 error do
   puts 'your mom down'
@@ -33,6 +33,20 @@ get "/test_client" do
   erb :test_client
 end
 
+get "/new_event/v2" do
+  ensure_cookie()
+  custom_event = CustomEvent.new
+  custom_event.current_time = Time.now
+  custom_event.persistent_id = cookies[:barium_trace]
+  
+  custom_event.category = params[:category]
+  custom_event.action = params[:action]
+  custom_event.label = params[:label]
+  custom_event.value = params[:value]
+
+  log custom_event, current_log_file_path
+end
+
 get "/new_event" do
   puts "Tracking custom event"
   ensure_cookie()
@@ -40,8 +54,8 @@ get "/new_event" do
   custom_event = CustomEvent.new
   custom_event.current_time = Time.now
   custom_event.persistent_id = cookies[:barium_trace]
-  custom_event.category = event[0]
   
+  custom_event.category = event[0]
   custom_event.action = event[1] unless event.length < 2
   custom_event.label = event[2] unless event.length < 3
   custom_event.value = event[3] unless event.length < 4

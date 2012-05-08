@@ -3,13 +3,26 @@
         var web_server_root = "http://<%= @server_root %>";
         var self = {
             push: function(event){
-                var json_event = JSON.stringify(event);
-                var encoded_json_event = encodeURIComponent(json_event);
-                self.send_event(encoded_json_event);
-            },
-            send_event: function(event_data) {
-                var img = new Image();
-                img.src = web_server_root + "/new_event?event=" + event_data;
+ 				var category = "", 
+ 					action = "", 
+ 					label = "", 
+ 					value = "";
+ 				
+ 				category = encodeURIComponent(event[0]);
+
+ 				if(event.length > 1){
+ 					action = encodeURIComponent(event[1]);
+ 				} 
+ 				if(event.length > 2)
+ 				{
+ 					label = encodeURIComponent(event[2]);
+ 				}
+ 				if(event.length > 3){
+ 					value = encodeURIComponent(event[3]);
+ 				}
+ 				
+ 				var img = new Image();
+                img.src = web_server_root + "/new_event/v2?" + "category="+category+"&action="+action+"&label="+label+"&value="+value;
             }
         };
         
