@@ -2,12 +2,12 @@ require "sinatra"
 require "sinatra/cookies"
 require "uuid"
 require "json"
-require "SecureRandom"
+require "securerandom"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 error do
   puts 'your mom down'
