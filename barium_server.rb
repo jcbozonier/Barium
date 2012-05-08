@@ -2,6 +2,7 @@ require "sinatra"
 require "sinatra/cookies"
 require "uuid"
 require "json"
+require "SecureRandom"
 
 set :public_folder, "./logs"
 set :views, "./views"
@@ -150,7 +151,7 @@ def ensure_cookie
   if cookies[:barium_trace] == nil
     puts "No cookie! Setting..."
     response.set_cookie("barium_trace",
-                        :value => UUID.generate(),
+                        :value => SecureRandom.uuid,
                         :domain => @server_root,
                         :path => "/",
                         :expires => Time.new(Time.now.year + 20,1,1))
