@@ -20,6 +20,8 @@
     })();
 
     setTimeout(function(){window._ba.push(["test category!", "test action!!", "test label!!!"]);}, 2000);
+    window._ba.push(["queued test category! 3"]);
+    window._ba.push(["queued test category! 3", undefined, undefined, undefined]);
 </script>
 <img src="/asplode" />
 </body>

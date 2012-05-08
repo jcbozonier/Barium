@@ -10,14 +10,14 @@
  				
  				category = encodeURIComponent(event[0]);
 
- 				if(event.length > 1){
+ 				if(event.length > 1 && event[1] != undefined){
  					action = encodeURIComponent(event[1]);
  				} 
- 				if(event.length > 2)
+ 				if(event.length > 2 && event[2] != undefined)
  				{
  					label = encodeURIComponent(event[2]);
  				}
- 				if(event.length > 3){
+ 				if(event.length > 3 && event[3] != undefined){
  					value = encodeURIComponent(event[3]);
  				}
  				
