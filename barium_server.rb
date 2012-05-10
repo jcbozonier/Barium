@@ -77,7 +77,7 @@ get "/files_to_archive" do
                 .reject{|file_path| file_path == current_error_log_file_path}
                 .reject{|file_path| file_path == current_log_file_path}
                 .map { |file_path| { 
-                    "uri" => File.join("http://", SERVER_ROOT, File.basename(file_path)), 
+                    "uri" => File.join("http://", "#{request.host}:#{request.port}", File.basename(file_path)), 
                     "size" => File.size(file_path) 
                   } 
                 }
