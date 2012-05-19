@@ -6,8 +6,8 @@ require "securerandom"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "LogBalancer-231309745.us-east-1.elb.amazonaws.com"
 
 error do
   puts 'your mom down'
@@ -171,6 +171,10 @@ end
 class CustomEvent
   attr_accessor :category, :action, :label, :value, :current_time, :persistent_id
   def write_to thing
+    @category = @category.gsub!(/[\n\t]+/, " ") if @category != nil;
+    @action = @action.gsub!(/[\n\t]+/, " ") if @action != nil;
+    @label = @label.gsub!(/[\n\t]+/, " ") if @label != nil;
+    @value = @value.gsub!(/[\n\t]+/, " ") if @value != nil;
     thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}"
   end
 end
