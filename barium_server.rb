@@ -182,7 +182,8 @@ end
 class PageViewedEvent
   attr_accessor :current_time, :persistent_id, :referer, :user_agent
   def write_to thing
-    #@referer = @referer
+    @user_agent = @user_agent.gsub(/[\"]+/, "'") if @user_agent != nil
+    @referer = @referer.gsub(/[\"]+/, "'") if @referer != nil
     thing.puts "page_view\t#{@current_time}\t#{@persistent_id}\t#{@referer}\t#{@user_agent}"
   end
 end
