@@ -34,6 +34,12 @@ get "/test_client" do
   erb :test_client
 end
 
+get "/never_end" do
+  while true do
+    nil
+  end
+end
+
 get "/new_event/v2" do
   ensure_cookie()
   custom_event = CustomEvent.new
