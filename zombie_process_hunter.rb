@@ -5,7 +5,7 @@ root_directory = File.join(Dir.pwd, "logs")
 Daemons.run_proc 'zombie_process_hunter.rb' do
   loop do
     begin
-      lines = `ps auxww -o pid,pcpu,rss,command`.split("\n")
+      lines = `ps aux -ww | awk '{ print $11 " " $2 " " $3 " " $4 }'`.split("\n")
       lines.each do |line|
         _not_used, pid, cpu, usage = line.split(' ').map &:to_i
         if cpu > 50
