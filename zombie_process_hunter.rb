@@ -8,7 +8,7 @@ Daemons.run_proc 'zombie_process_hunter.rb' do
       lines = `ps aux -ww | awk '{ print $11 " " $2 " " $3 " " $4 }'`.split("\n")
       lines.each do |line|
         _not_used, pid, cpu, usage = line.split(' ').map &:to_i
-        if cpu > 50
+        if cpu > 5
           current_time = Time.now
           suspected_zombie_file_name = "suspected_zombies_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
           suspected_zombie_log_file_path = File.join("#{root_directory}", suspected_zombie_file_name)

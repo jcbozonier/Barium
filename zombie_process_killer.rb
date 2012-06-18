@@ -8,7 +8,7 @@ Daemons.run_proc 'zombie_process_killer.rb' do
       lines = `ps aux -ww | awk '{ print $11 " " $2 " " $3 " " $4 }' | grep "Barium\\|rackup\\|apache2\\|Passenger\\|Rack\\|ruby"`.split("\n")
       lines.each do |line|
         _not_used, pid, cpu, usage = line.split(' ').map &:to_i
-        if cpu > 90
+        if cpu > 10
           current_time = Time.now
           killed_zombie_file_name = "killed_zombies_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
           killed_zombie_log_file_path = File.join("#{root_directory}", killed_zombie_file_name)
