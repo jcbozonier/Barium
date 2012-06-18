@@ -6,8 +6,8 @@ require "securerandom"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "barium.cheezdev.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "barium.cheezdev.com"
 
 error do
   puts 'your mom down'
@@ -80,8 +80,7 @@ end
 
 get "/files_to_archive" do
   log_files = Dir.glob("#{log_folder_path}/*")
-                .reject{|file_path| file_path == current_error_log_file_path}
-                .reject{|file_path| file_path == current_log_file_path}
+                .reject{|file_path| file_path.include? current_time_partial_file_name}
                 .map { |file_path| { 
                     "uri" => File.join("http://", "#{request.host}:#{request.port}", File.basename(file_path)), 
                     "size" => File.size(file_path) 
@@ -132,13 +131,16 @@ def log_folder_path
 end
 
 def current_log_file_path
-  current_time = Time.now
-  "#{log_folder_path}/log_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
+  "#{log_folder_path}/log_#{current_time_partial_file_name}.txt"
 end
 
 def current_error_log_file_path
+  "#{log_folder_path}/errors_#{current_time_partial_file_name}.txt"
+end
+
+def current_time_partial_file_name
   current_time = Time.now
-  "#{log_folder_path}/errors_#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}.txt"
+  "#{current_time.year}_#{current_time.month}_#{current_time.day}_#{current_time.hour}"
 end
 
 def log event, path
