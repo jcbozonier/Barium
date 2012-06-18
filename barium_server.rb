@@ -6,8 +6,8 @@ require "securerandom"
 
 set :public_folder, "./logs"
 set :views, "./views"
-SERVER_ROOT = "127.0.0.1:9292"
-#SERVER_ROOT = "barium.cheezdev.com"
+#SERVER_ROOT = "127.0.0.1:9292"
+SERVER_ROOT = "barium.cheezdev.com"
 
 error do
   puts 'your mom down'
