@@ -50,6 +50,8 @@ get "/pageview" do
     page_viewed_event.referer = request.referer
     page_viewed_event.user_agent = request.user_agent
     page_viewed_event.pageview_id = params[:pageview_id]
+    page_viewed_event.project_name = params[:project_name]
+    page_viewed_event.site_id = params[:site_id]
 
     log page_viewed_event, current_log_file_path
   rescue Exception => error
@@ -69,6 +71,8 @@ get "/new_event/v2" do
   custom_event.value = params[:value]
   custom_event.url = request.referer
   custom_event.pageview_id = params[:pageview_id]
+  custom_event.project_name = params[:project_name]
+  custom_event.site_id = params[:site_id]
 
   log custom_event, current_log_file_path
 end
@@ -163,22 +167,22 @@ class ErrorEvent
 end
 
 class CustomEvent
-  attr_accessor :category, :action, :label, :value, :current_time, :persistent_id, :url, :pageview_id
+  attr_accessor :category, :action, :label, :value, :current_time, :persistent_id, :url, :pageview_id, :project_name, :site_id
   def write_to thing
     @category = @category.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @category != nil;
     @action = @action.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @action != nil;
     @label = @label.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @label != nil;
     @value = @value.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @value != nil;
     @referer = @referer.gsub(/[\"]+/, "'") if @referer != nil
-    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}\t#{@referer}\t#{pageview_id}"
+    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}\t#{@referer}\t#{pageview_id}\t#{@project_name}\t#{@site_id}"
   end
 end
 
 class PageViewedEvent
-  attr_accessor :current_time, :persistent_id, :referer, :user_agent, :pageview_id
+  attr_accessor :current_time, :persistent_id, :referer, :user_agent, :pageview_id, :project_name, :site_id
   def write_to thing
     @user_agent = @user_agent.gsub(/[\"]+/, "'") if @user_agent != nil
     @referer = @referer.gsub(/[\"]+/, "'") if @referer != nil
-    thing.puts "page_view\t#{@current_time}\t#{@persistent_id}\t#{@referer}\t#{@user_agent}\t#{@pageview_id}"
+    thing.puts "page_view\t#{@current_time}\t#{@persistent_id}\t#{@referer}\t#{@user_agent}\t#{@pageview_id}\t#{@project_name}\t#{@site_id}"
   end
 end

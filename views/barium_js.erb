@@ -6,12 +6,14 @@
 		var generate_guid = function() {
 		   return (S4()+S4()+"_"+S4()+"_"+S4()+"_"+S4()+"_"+S4()+S4()+S4());
 		}
+		var project_name = encodeURIComponent(window.eVar8_ProjectName);
+		var site_id = encodeURIComponent(window.eVar10_SiteId);
 		var pageview_id = generate_guid();
         var web_server_root = "http://<%= @server_root %>";
         var self = {
  			track_pageview: function(){
  				var img = new Image();
-                img.src = web_server_root + "/pageview?pageview_id=" + pageview_id;
+                img.src = web_server_root + "/pageview?pageview_id=" + pageview_id+"&project_name="+project_name+"&site_id="+site_id;
  			},
             push: function(event){
  				var category = "", 
@@ -33,7 +35,7 @@
  				}
  				
  				var img = new Image();
-                img.src = web_server_root + "/new_event/v2?" + "category="+category+"&action="+action+"&label="+label+"&value="+value+"&pageview_id="+pageview_id;
+                img.src = web_server_root + "/new_event/v2?" + "category="+category+"&action="+action+"&label="+label+"&value="+value+"&pageview_id="+pageview_id+"&project_name="+project_name+"&site_id=" + site_id;
             }
         };
         
