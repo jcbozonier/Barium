@@ -40,6 +40,23 @@ get "/never_end" do
   end
 end
 
+get "/pageview" do
+  begin
+    ensure_cookie()
+
+    page_viewed_event = PageViewedEvent.new
+    page_viewed_event.current_time = Time.now
+    page_viewed_event.persistent_id = cookies[:barium_trace]
+    page_viewed_event.referer = request.referer
+    page_viewed_event.user_agent = request.user_agent
+    page_viewed_event.pageview_id = params[:pageview_id]
+
+    log page_viewed_event, current_log_file_path
+  rescue Exception => error
+    return "// Current directory: #{Dir.getwd}<br/>#{error.message}<br/> #{error.backtrace}"
+  end
+end
+
 get "/new_event/v2" do
   ensure_cookie()
   custom_event = CustomEvent.new
@@ -50,22 +67,8 @@ get "/new_event/v2" do
   custom_event.action = params[:action]
   custom_event.label = params[:label]
   custom_event.value = params[:value]
-
-  log custom_event, current_log_file_path
-end
-
-get "/new_event" do
-  puts "Tracking custom event"
-  ensure_cookie()
-  event = JSON.parse(params[:event])
-  custom_event = CustomEvent.new
-  custom_event.current_time = Time.now
-  custom_event.persistent_id = cookies[:barium_trace]
-  
-  custom_event.category = event[0]
-  custom_event.action = event[1] unless event.length < 2
-  custom_event.label = event[2] unless event.length < 3
-  custom_event.value = event[3] unless event.length < 4
+  custom_event.url = request.referer
+  custom_event.pageview_id = params[:pageview_id]
 
   log custom_event, current_log_file_path
 end
@@ -103,23 +106,6 @@ end
 
 get "/" do
   @server_root = SERVER_ROOT
-  begin
-    puts "Starting to track"
-    ensure_cookie()
-
-    page_viewed_event = PageViewedEvent.new
-    page_viewed_event.current_time = Time.now
-    page_viewed_event.persistent_id = cookies[:barium_trace]
-    page_viewed_event.referer = request.referer
-    page_viewed_event.user_agent = request.user_agent
-
-    log page_viewed_event, current_log_file_path
-
-    puts "Ending tracking"
-  rescue Exception => error
-    return "// Current directory: #{Dir.getwd}<br/>#{error.message}<br/> #{error.backtrace}"
-  end
-
   response['Cache-Control'] = "no-store, no-cache, must-revalidate"
   response['Expires'] = "-1"
 
@@ -177,21 +163,22 @@ class ErrorEvent
 end
 
 class CustomEvent
-  attr_accessor :category, :action, :label, :value, :current_time, :persistent_id
+  attr_accessor :category, :action, :label, :value, :current_time, :persistent_id, :url, :pageview_id
   def write_to thing
     @category = @category.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @category != nil;
     @action = @action.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @action != nil;
     @label = @label.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @label != nil;
     @value = @value.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @value != nil;
-    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}"
+    @referer = @referer.gsub(/[\"]+/, "'") if @referer != nil
+    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}\t#{@referer}\t#{pageview_id}"
   end
 end
 
 class PageViewedEvent
-  attr_accessor :current_time, :persistent_id, :referer, :user_agent
+  attr_accessor :current_time, :persistent_id, :referer, :user_agent, :pageview_id
   def write_to thing
     @user_agent = @user_agent.gsub(/[\"]+/, "'") if @user_agent != nil
     @referer = @referer.gsub(/[\"]+/, "'") if @referer != nil
-    thing.puts "page_view\t#{@current_time}\t#{@persistent_id}\t#{@referer}\t#{@user_agent}"
+    thing.puts "page_view\t#{@current_time}\t#{@persistent_id}\t#{@referer}\t#{@user_agent}\t#{@pageview_id}"
   end
 end

@@ -1,7 +1,18 @@
 (function(){
     var BariumTracker = function(){
+ 		var S4 = function() {
+		   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+		}
+		var generate_guid = function() {
+		   return (S4()+S4()+"_"+S4()+"_"+S4()+"_"+S4()+"_"+S4()+S4()+S4());
+		}
+		var pageview_id = generate_guid();
         var web_server_root = "http://<%= @server_root %>";
         var self = {
+ 			track_pageview: function(){
+ 				var img = new Image();
+                img.src = web_server_root + "/pageview?pageview_id=" + pageview_id;
+ 			},
             push: function(event){
  				var category = "", 
  					action = "", 
@@ -22,7 +33,7 @@
  				}
  				
  				var img = new Image();
-                img.src = web_server_root + "/new_event/v2?" + "category="+category+"&action="+action+"&label="+label+"&value="+value;
+                img.src = web_server_root + "/new_event/v2?" + "category="+category+"&action="+action+"&label="+label+"&value="+value+"&pageview_id="+pageview_id;
             }
         };
         
@@ -31,10 +42,12 @@
     
     if (!window._ba){
         window._ba = new BariumTracker();
+ 		window._ba.track_pageview();
     } else {
         var queued_events = window._ba,
             event;
         window._ba = new BariumTracker();
+ 		window._ba.track_pageview();
         for (var idx = 0, l = queued_events.length; idx < l; idx += 1){
             event = queued_events[idx];
             window._ba.push(event);
