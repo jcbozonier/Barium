@@ -6,8 +6,14 @@
 		var generate_guid = function() {
 		   return (S4()+S4()+"_"+S4()+"_"+S4()+"_"+S4()+"_"+S4()+S4()+S4());
 		}
-		var project_name = encodeURIComponent(window.eVar8_ProjectName);
-		var site_id = encodeURIComponent(window.eVar10_SiteId);
+		
+		var project_name = "";
+		var site_id = "";		
+		if(window.omniturePageData){
+			project_name = encodeURIComponent(window.omniturePageData.eVar8_ProjectName);
+			site_id = encodeURIComponent(window.omniturePageData.eVar10_SiteId);
+		}
+
 		var pageview_id = generate_guid();
         var web_server_root = "http://<%= @server_root %>";
         var self = {
