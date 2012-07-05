@@ -9,7 +9,9 @@
     window.omniturePageData = {};
     window.omniturePageData.eVar8_ProjectName = "Bozo Project!";
     window.omniturePageData.eVar10_SiteId = 3342;
+    window._barium = window._barium || [];
     window._ba = window._ba || [];
+    window._barium.push(["split_test_event", "my_user_id", "test_name", "assigned_segment_name", "event_name"]);
     window._ba.push(["queued test category! 1", "queued test action!! 1", "queued test label!!! 1", "Now with more value!!"]);
     window._ba.push(["queued test \n category! 2", "queued \"test\" action!! 2", "queued test label!!! 2", null]);
 
@@ -23,6 +25,7 @@
     })();
 
     setTimeout(function(){window._ba.push(["test category!", "test action!!", "test label!!!"]);}, 2000);
+    setTimeout(function(){window._barium.push(["split_test_event", "my_user_id2", "test_name2", "assigned_segment_name2", "event_name2"]);});
     window._ba.push(["queued test category! 3"]);
     window._ba.push(["queued \ttest cate\ngory! 4", "a\nb\tcolumn? or super column?", "were\nds\tfew rer", "w\t\t\t\t34rd \n"]);
     window._ba.push(["queued test category! 3", undefined, undefined, undefined]);

@@ -6,8 +6,8 @@ require "securerandom"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
-SERVER_ROOT = "barium.cheezdev.com"
+SERVER_ROOT = "127.0.0.1:9292"
+#SERVER_ROOT = "barium.cheezdev.com"
 
 error do
   puts 'your mom down'
@@ -59,6 +59,21 @@ get "/pageview" do
   end
 end
 
+get "/log_event" do
+  if params[:command_name] == "split_test_event"
+    split_test_event = SplitTestEvent.new
+    split_test_event.current_time = Time.now
+    split_test_event.persistent_id = params[:user_id]
+    split_test_event.user_agent = request.user_agent
+    split_test_event.url = request.referer
+    split_test_event.test_name = params[:test_name]
+    split_test_event.segment_name = params[:segment_name]
+    split_test_event.event_name = params[:event_name]
+
+    log split_test_event, current_split_test_event_log_file_path
+  end
+end
+
 get "/new_event/v2" do
   ensure_cookie()
   custom_event = CustomEvent.new
@@ -80,7 +95,7 @@ end
 get "/clean" do
   puts "Current File: " + current_log_file_path
   Dir.glob("#{log_folder_path}/*") do |file_path|
-    File.delete(file_path) unless file_path == current_log_file_path or file_path == current_error_log_file_path
+    File.delete(file_path) unless file_path == current_log_file_path or file_path == current_error_log_file_path or file_path == current_split_test_event_log_file_path
   end
   "Cleaned all log files prior to #{current_log_file_path}"
 end
@@ -88,6 +103,7 @@ end
 get "/files_to_archive" do
   log_files = Dir.glob("#{log_folder_path}/*")
                 .reject{|file_path| file_path.include? current_time_partial_file_name}
+                .reject{|file_path| file_path.include? current_split_test_event_log_file_path} 
                 .map { |file_path| { 
                     "uri" => File.join("http://", "#{request.host}:#{request.port}", File.basename(file_path)), 
                     "size" => File.size(file_path) 
@@ -118,6 +134,19 @@ end
 
 def log_folder_path
   log_folder_path = "./logs"
+end
+
+def date_pad value
+  return value if value == nil
+  '0' * (2 - value.to_s.length) + value.to_s
+end
+
+def current_split_test_event_log_file_path
+  current_time = Time.now
+  month = date_pad current_time.month
+  day = date_pad current_time.day
+  hour = date_pad current_time.hour
+  "#{log_folder_path}/#{current_time.year}_#{month}_#{day}_#{hour}_splittests.txt"
 end
 
 def current_log_file_path
@@ -166,6 +195,29 @@ class ErrorEvent
   end
 end
 
+def replace_bad_characters_from provided_string
+  if provided_string != nil
+    return provided_string.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'")
+  else
+    return provided_string
+  end
+end
+
+class SplitTestEvent
+  attr_accessor :current_time, :persistent_id, :user_agent, :url, :test_name, :segment_name, :event_name
+
+  def write_to thing
+    @persistent_id = replace_bad_characters_from @persistent_id
+    @user_agent = replace_bad_characters_from @user_agent
+    @test_name = replace_bad_characters_from @test_name
+    @segment_name = replace_bad_characters_from @segment_name
+    @event_name = replace_bad_characters_from @event_name
+    @url = replace_bad_characters_from @url
+
+    thing.puts "split_test_event\t#{@current_time}\t#{@persistent_id}\t#{@user_agent}\t#{@url}\t#{@test_name}\t#{@segment_name}\t#{@event_name}"
+  end
+end
+
 class CustomEvent
   attr_accessor :category, :action, :label, :value, :current_time, :persistent_id, :url, :pageview_id, :project_name, :site_id
   def write_to thing
@@ -173,8 +225,8 @@ class CustomEvent
     @action = @action.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @action != nil;
     @label = @label.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @label != nil;
     @value = @value.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @value != nil;
-    @referer = @referer.gsub(/[\"]+/, "'") if @referer != nil
-    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}\t#{@referer}\t#{pageview_id}\t#{@project_name}\t#{@site_id}"
+    @url = @url.gsub(/[\"]+/, "'") if @url != nil
+    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}\t#{@url}\t#{pageview_id}\t#{@project_name}\t#{@site_id}"
   end
 end
 
