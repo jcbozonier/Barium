@@ -6,8 +6,9 @@ require "securerandom"
 
 set :public_folder, "./logs"
 set :views, "./views"
-#SERVER_ROOT = "127.0.0.1:9292"
 SERVER_ROOT = "barium.cheezdev.com"
+
+require "./local_override_config.rb" if File.exists? "./local_override_config.rb"
 
 error do
   puts 'your mom down'

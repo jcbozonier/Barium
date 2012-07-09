@@ -4,3 +4,4 @@
 Gemfile.lock
 logs
 *.rb.pid
+local_override_config.rb
