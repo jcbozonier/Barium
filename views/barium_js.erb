@@ -20,10 +20,10 @@
     var BariumTracker = function(){
  		var S4 = function() {
 		   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-		}
+		};
 		var generate_guid = function() {
 		   return (S4()+S4()+"_"+S4()+"_"+S4()+"_"+S4()+"_"+S4()+S4()+S4());
-		}
+		};
 		
 		var project_name = "";
 		var site_id = "";		
@@ -89,5 +89,76 @@
             var event = queued_events[index];
             window._barium.push(event);
         }
+ 	}
+
+	var S4 = function() {
+	   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+	};
+	var generate_guid = function() {
+	   return (S4()+S4()+"_"+S4()+"_"+S4()+"_"+S4()+"_"+S4()+S4()+S4());
+	};
+
+ 	function setCookie(c_name,value)
+	{
+		var exdays = 1;
+		var exdate=new Date();
+		exdate.setDate(exdate.getDate() + exdays);
+		var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
+		document.cookie=c_name + "=" + c_value;
+	}
+
+	function getCookie(c_name)
+	{
+		var i,x,y,ARRcookies=document.cookie.split(";");
+		for (i=0;i<ARRcookies.length;i++)
+		{
+			x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
+			y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
+			x=x.replace(/^\s+|\s+$/g,"");
+			if (x==c_name)
+			{
+				return unescape(y);
+			}
+		}
+
+		return null;
+	}
+
+	var user_segments = ["original variant", "variant b", "variant c"];
+
+	if(getCookie("included_in_sanity_test") == null){
+		var include_in_bozo_test = Math.floor(0 * Math.random()) == 0;
+		if(include_in_bozo_test){
+			var user_id = generate_guid();
+			setCookie("included_in_sanity_test", true);
+			setCookie("sanity_test_user_id", user_id);
+
+			var assigned_segment_index = Math.floor(user_segments.length * Math.random());
+			var assigned_segment_name = user_segments[assigned_segment_index];
+			setCookie("assigned_sanity_test_segment", assigned_segment_name);
+
+			window._barium.push([
+				"split_test_event", 
+				user_id, 
+				"sanity check A/A split test", 
+				assigned_segment_name, 
+				"user_assigned_to_segment"
+			]);
+		} else {
+			setCookie("included_in_sanity_test", "false");
+		}
+	}
+
+ 	if(getCookie("included_in_sanity_test") == "true")
+ 	{
+ 		var user_id = getCookie("sanity_test_user_id");
+ 		var assigned_segment_name = getCookie("assigned_sanity_test_segment");
+
+		if(Math.floor(2 * Math.random()) == 1){
+			var possible_events = ["facebook_share", "page_view"];
+			var event_index = Math.floor(2 * Math.random());
+
+			window._barium.push(["split_test_event", user_id, "sanity check A/A split test", assigned_segment_name, possible_events[event_index]]);
+		}
  	}
  })();
