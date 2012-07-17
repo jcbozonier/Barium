@@ -102,7 +102,7 @@
 	{
 		var exdays = 1;
 		var exdate=new Date();
-		exdate.setDate(exdate.getDate() + 1000 * 60 * 60 * 24 * exdays);
+		exdate.setDate(exdate.getDate() + exdays);
 		var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
 		document.cookie=c_name + "=" + c_value;
 	}
@@ -127,7 +127,7 @@
 	var user_segments = ["original variant", "variant b", "variant c"];
 
 	if(getCookie("included_in_sanity_test") == null){
-		var include_in_bozo_test = Math.floor(0 * Math.random()) == 0;
+		var include_in_bozo_test = Math.floor(10 * Math.random()) == 3;
 		if(include_in_bozo_test){
 			var user_id = generate_guid();
 			setCookie("included_in_sanity_test", true);
@@ -154,11 +154,13 @@
  		var user_id = getCookie("sanity_test_user_id");
  		var assigned_segment_name = getCookie("assigned_sanity_test_segment");
 
-		if(Math.floor(2 * Math.random()) == 1){
-			var possible_events = ["facebook_share", "page_view"];
-			var event_index = Math.floor(2 * Math.random());
-
-			window._barium.push(["split_test_event", user_id, "sanity check A/A split test", assigned_segment_name, possible_events[event_index]]);
+		
+		var possible_events = ["facebook_share", "page_view"];
+		var event_index = Math.floor(2 * Math.random());
+		if(assigned_segment_name == "variant c"){
+			event_index = 0;
 		}
+
+		window._barium.push(["split_test_event", user_id, "sanity check A/A split test", assigned_segment_name, possible_events[event_index]]);
  	}
  })();
