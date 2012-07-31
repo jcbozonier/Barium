@@ -89,6 +89,7 @@ get "/new_event/v2" do
   custom_event.pageview_id = params[:pageview_id]
   custom_event.project_name = params[:project_name]
   custom_event.site_id = params[:site_id]
+  custom_event.user_agent = request.user_agent
 
   log custom_event, current_log_file_path
 end
@@ -214,20 +215,22 @@ class SplitTestEvent
     @segment_name = replace_bad_characters_from @segment_name
     @event_name = replace_bad_characters_from @event_name
     @url = replace_bad_characters_from @url
+    @user_agent = @user_agent.gsub(/[\"]+/, "'") if @user_agent != nil
 
     thing.puts "split_test_event\t#{@current_time}\t#{@persistent_id}\t#{@user_agent}\t#{@url}\t#{@test_name}\t#{@segment_name}\t#{@event_name}"
   end
 end
 
 class CustomEvent
-  attr_accessor :category, :action, :label, :value, :current_time, :persistent_id, :url, :pageview_id, :project_name, :site_id
+  attr_accessor :category, :action, :label, :value, :current_time, :persistent_id, :url, :pageview_id, :project_name, :site_id, :user_agent
   def write_to thing
     @category = @category.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @category != nil;
     @action = @action.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @action != nil;
     @label = @label.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @label != nil;
     @value = @value.gsub(/[\n\t]+/, " ").gsub(/[\"]+/, "'") if @value != nil;
     @url = @url.gsub(/[\"]+/, "'") if @url != nil
-    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}\t#{@url}\t#{pageview_id}\t#{@project_name}\t#{@site_id}"
+    @user_agent = @user_agent.gsub(/[\"]+/, "'") if @user_agent != nil
+    thing.puts "custom_event\t#{@current_time}\t#{@persistent_id}\t#{@category}\t#{@action}\t#{@label}\t#{@value}\t#{@url}\t#{pageview_id}\t#{@project_name}\t#{@site_id}\t#{@user_agent}"
   end
 end
 
